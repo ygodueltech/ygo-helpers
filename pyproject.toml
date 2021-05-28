@@ -2,15 +2,16 @@
 name = "ygo-helpers"
 version = "0.1.0"
 description = ""
-authors = ["Your Name <you@example.com>"]
+authors = ["dueltech <ygodueltech@gmail.com>"]
 license = "n"
 
 [tool.poetry.dependencies]
 python = "^3.9"
 click = "^8.0.1"
-ipdb = "^0.13.7"
 
 [tool.poetry.dev-dependencies]
+pytest = "^6.2.4"
+ipdb = "^0.13.7"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
