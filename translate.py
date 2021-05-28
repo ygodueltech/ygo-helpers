@@ -14,6 +14,41 @@ DIR = os.path.dirname(os.path.abspath(__file__))
 
 dbfile = os.getenv("YGO_CARDS_CDB") or f"{DIR}/cards.cdb"
 
+YDKE_PREFIX = "ydke://"
+YDKE_SEPARATOR = "!"
+YDKE_SUFFIX = "!"
+
+RE_YDKE = f"{YDKE_PREFIX}(?P<deck>.*){YDKE_SUFFIX}"
+
+
+def _decode_ydke(ydke):
+
+    match = re.match(RE_YDKE, ydke)
+    if not match:
+        raise ValueError(f"must match {RE_YDKE}, got {ydke}")
+
+    raw = match.groupdict()["deck"]
+
+    result = []
+    for i, subdeck in enumerate(raw.split(YDKE_SEPARATOR)):
+
+        decoded = base64.b64decode(subdeck)
+        card_ids = [x[0] for x in struct.iter_unpack("i", decoded)]
+
+        mapping = {x["id"]: dict(x) for x in from_ids(set(card_ids))}
+        subcards = [mapping[x] for x in card_ids]
+
+        deck_type = {0: "MAIN", 1: "EXTRA", 2: "SIDE"}.get(i)
+        for card in subcards:
+            card["type"] = deck_type
+        result.append(subcards)
+    result = sum(result, [])
+
+    for card in result:
+        print(card)
+
+    return result
+
 
 def get_db():
     con = sqlite3.connect(dbfile)

@@ -5,6 +5,76 @@ import translate
 DIR = os.path.dirname(os.path.abspath(__file__))
 
 
+def test_decode_ydke():
+
+    ydke_code = "ydke://1xqfAdcanwHXGp8B3P\\/TANz\\/0wDQlpgA0JaYABjEFQQYxBUEGMQVBO3CtwXtwrcF7cK3BRGO9wARjvcAEY73ACQ20gQkNtIEJDbSBJzJ8QGcyfEBo3Q\\/A6N0PwPpHZkF6R2ZBekdmQVTpacDU6WnA7vMPwO7zD8Du8w\\/A6DQ4QSg0OEEoNDhBKDi1gSg4tYEoOLWBG927wBvdu8Ab3bvAA==!cdItAzsDfgSPs+sB!OLFjBCkLGgNS94oDU\\/eKA7FHsgOxR7ID4VidA+FYnQOjdD8DU6WnAw==!"
+    actual = translate._decode_ydke(ydke_code)
+    expected = [
+        {"id": 27204311, "name": "Nibiru, the Primal Being", "type": "MAIN"},
+        {"id": 27204311, "name": "Nibiru, the Primal Being", "type": "MAIN"},
+        {"id": 27204311, "name": "Nibiru, the Primal Being", "type": "MAIN"},
+        {"id": 13893596, "name": "Exodius the Ultimate Forbidden Lord", "type": "MAIN"},
+        {"id": 13893596, "name": "Exodius the Ultimate Forbidden Lord", "type": "MAIN"},
+        {
+            "id": 10000080,
+            "name": "The Winged Dragon of Ra - Sphere Mode",
+            "type": "MAIN",
+        },
+        {
+            "id": 10000080,
+            "name": "The Winged Dragon of Ra - Sphere Mode",
+            "type": "MAIN",
+        },
+        {"id": 68535320, "name": "Fire Hand", "type": "MAIN"},
+        {"id": 68535320, "name": "Fire Hand", "type": "MAIN"},
+        {"id": 68535320, "name": "Fire Hand", "type": "MAIN"},
+        {"id": 95929069, "name": "Ice Hand", "type": "MAIN"},
+        {"id": 95929069, "name": "Ice Hand", "type": "MAIN"},
+        {"id": 95929069, "name": "Ice Hand", "type": "MAIN"},
+        {"id": 16223761, "name": "Thunder Hand", "type": "MAIN"},
+        {"id": 16223761, "name": "Thunder Hand", "type": "MAIN"},
+        {"id": 16223761, "name": "Thunder Hand", "type": "MAIN"},
+        {"id": 80885284, "name": "Ghostrick Jiangshi", "type": "MAIN"},
+        {"id": 80885284, "name": "Ghostrick Jiangshi", "type": "MAIN"},
+        {"id": 80885284, "name": "Ghostrick Jiangshi", "type": "MAIN"},
+        {"id": 32623004, "name": "Nopenguin", "type": "MAIN"},
+        {"id": 32623004, "name": "Nopenguin", "type": "MAIN"},
+        {"id": 54490275, "name": "Ghostrick Yuki-onna", "type": "MAIN"},
+        {"id": 54490275, "name": "Ghostrick Yuki-onna", "type": "MAIN"},
+        {"id": 93920745, "name": "Penguin Soldier", "type": "MAIN"},
+        {"id": 93920745, "name": "Penguin Soldier", "type": "MAIN"},
+        {"id": 93920745, "name": "Penguin Soldier", "type": "MAIN"},
+        {"id": 61318483, "name": "Ghostrick Jackfrost", "type": "MAIN"},
+        {"id": 61318483, "name": "Ghostrick Jackfrost", "type": "MAIN"},
+        {"id": 54512827, "name": "Ghostrick Lantern", "type": "MAIN"},
+        {"id": 54512827, "name": "Ghostrick Lantern", "type": "MAIN"},
+        {"id": 54512827, "name": "Ghostrick Lantern", "type": "MAIN"},
+        {"id": 81907872, "name": "Ghostrick Specter", "type": "MAIN"},
+        {"id": 81907872, "name": "Ghostrick Specter", "type": "MAIN"},
+        {"id": 81907872, "name": "Ghostrick Specter", "type": "MAIN"},
+        {"id": 81191584, "name": "Recurring Nightmare", "type": "MAIN"},
+        {"id": 81191584, "name": "Recurring Nightmare", "type": "MAIN"},
+        {"id": 81191584, "name": "Recurring Nightmare", "type": "MAIN"},
+        {"id": 15693423, "name": "Evenly Matched", "type": "MAIN"},
+        {"id": 15693423, "name": "Evenly Matched", "type": "MAIN"},
+        {"id": 15693423, "name": "Evenly Matched", "type": "MAIN"},
+        {"id": 53334641, "name": "Ghostrick Angel of Mischief", "type": "EXTRA"},
+        {"id": 75367227, "name": "Ghostrick Alucard", "type": "EXTRA"},
+        {"id": 32224143, "name": "Ghostrick Socuteboss", "type": "EXTRA"},
+        {"id": 73642296, "name": "Ghost Belle & Haunted Mansion", "type": "SIDE"},
+        {"id": 52038441, "name": "Ghost Mourner & Moonlit Chill", "type": "SIDE"},
+        {"id": 59438930, "name": "Ghost Ogre & Snow Rabbit", "type": "SIDE"},
+        {"id": 59438931, "name": "Ghost Ogre & Snow Rabbit", "type": "SIDE"},
+        {"id": 62015409, "name": "Ghost Reaper & Winter Cherries", "type": "SIDE"},
+        {"id": 62015409, "name": "Ghost Reaper & Winter Cherries", "type": "SIDE"},
+        {"id": 60643553, "name": "Ghost Sister & Spooky Dogwood", "type": "SIDE"},
+        {"id": 60643553, "name": "Ghost Sister & Spooky Dogwood", "type": "SIDE"},
+        {"id": 54490275, "name": "Ghostrick Yuki-onna", "type": "SIDE"},
+        {"id": 61318483, "name": "Ghostrick Jackfrost", "type": "SIDE"},
+    ]
+    assert actual == expected
+
+
 def test_peek_into_ydk():
     infile = f"{DIR}/AI_BlueEyes.ydk"
     actual = translate._peek_into_ydk(infile)
