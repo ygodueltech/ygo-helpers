@@ -1,59 +1,136 @@
+import os
+
 import translate
+
+DIR = os.path.dirname(os.path.abspath(__file__))
+
+
+def test_peek_into_ydk():
+    infile = f"{DIR}/AI_BlueEyes.ydk"
+    actual = translate.peek_into_ydk(infile)
+    expected = [
+        {"id": "89631139", "name": "Blue-Eyes White Dragon"},
+        {"id": "89631139", "name": "Blue-Eyes White Dragon"},
+        {"id": "89631139", "name": "Blue-Eyes White Dragon"},
+        {"id": "38517737", "name": "Blue-Eyes Alternative White Dragon"},
+        {"id": "38517737", "name": "Blue-Eyes Alternative White Dragon"},
+        {"id": "38517737", "name": "Blue-Eyes Alternative White Dragon"},
+        {"id": "45467446", "name": "Dragon Spirit of White"},
+        {"id": "45467446", "name": "Dragon Spirit of White"},
+        {"id": "71039903", "name": "The White Stone of Ancients"},
+        {"id": "71039903", "name": "The White Stone of Ancients"},
+        {"id": "71039903", "name": "The White Stone of Ancients"},
+        {"id": "79814787", "name": "The White Stone of Legend"},
+        {"id": "79814787", "name": "The White Stone of Legend"},
+        {"id": "8240199", "name": "Sage with Eyes of Blue"},
+        {"id": "8240199", "name": "Sage with Eyes of Blue"},
+        {"id": "8240199", "name": "Sage with Eyes of Blue"},
+        {"id": "5133471", "name": "Galaxy Cyclone"},
+        {"id": "5133471", "name": "Galaxy Cyclone"},
+        {"id": "6853254", "name": "Return of the Dragon Lords"},
+        {"id": "6853254", "name": "Return of the Dragon Lords"},
+        {"id": "6853254", "name": "Return of the Dragon Lords"},
+        {"id": "18144506", "name": "Harpie's Feather Duster"},
+        {"id": "35261759", "name": "Pot of Desires"},
+        {"id": "35261759", "name": "Pot of Desires"},
+        {"id": "38120068", "name": "Trade-In"},
+        {"id": "38120068", "name": "Trade-In"},
+        {"id": "38120068", "name": "Trade-In"},
+        {"id": "39701395", "name": "Cards of Consonance"},
+        {"id": "39701395", "name": "Cards of Consonance"},
+        {"id": "39701395", "name": "Cards of Consonance"},
+        {"id": "41620959", "name": "Dragon Shrine"},
+        {"id": "41620959", "name": "Dragon Shrine"},
+        {"id": "48800175", "name": "The Melody of Awakening Dragon"},
+        {"id": "48800175", "name": "The Melody of Awakening Dragon"},
+        {"id": "48800175", "name": "The Melody of Awakening Dragon"},
+        {"id": "54447022", "name": "Soul Charge"},
+        {"id": "83764718", "name": "Monster Reborn"},
+        {"id": "87025064", "name": "Silver's Cry"},
+        {"id": "87025064", "name": "Silver's Cry"},
+        {"id": "87025064", "name": "Silver's Cry"},
+        {"id": "63422098", "name": "Giganticastle"},
+        {"id": "40908371", "name": "Azure-Eyes Silver Dragon"},
+        {"id": "40908371", "name": "Azure-Eyes Silver Dragon"},
+        {"id": "40908371", "name": "Azure-Eyes Silver Dragon"},
+        {"id": "59822133", "name": "Blue-Eyes Spirit Dragon"},
+        {"id": "59822133", "name": "Blue-Eyes Spirit Dragon"},
+        {"id": "59822133", "name": "Blue-Eyes Spirit Dragon"},
+        {"id": "58820923", "name": "Number 95: Galaxy-Eyes Dark Matter Dragon"},
+        {"id": "2530830", "name": "Galaxy-Eyes Cipher Blade Dragon"},
+        {"id": "39030163", "name": "Galaxy-Eyes Full Armor Photon Dragon"},
+        {"id": "31801517", "name": "Number 62: Galaxy-Eyes Prime Photon Dragon"},
+        {"id": "18963306", "name": "Galaxy-Eyes Cipher Dragon"},
+        {"id": "63767246", "name": "Number 38: Hope Harbinger Dragon Titanic Galaxy"},
+        {"id": "63767246", "name": "Number 38: Hope Harbinger Dragon Titanic Galaxy"},
+        {"id": "33909817", "name": "Sylvan Princessprite"},
+    ]
+    assert actual == expected
+
 
 def test_decode_omega():
     omega_code = "0+a6LjWfEYbv\/L\/MAMIXps0AY4kjoiww\/PbQdlYYFuz7zgDDKmaXWGB4zsmPjCC8uMSeGYRfys5kheHgpcuZQXj3GXs4XnDhIQscP7oGx\/ll7xlguPCSLrM1cx1L\/+bXjBYbk1k0uaWYg753MQcD8Ub3TWD8MGIuGIPsBNkBAA=="
-    expected = [{'id': 27204311, 'name': 'Nibiru, the Primal Being', 'type': 'MAIN'}
-    ,{'id': 27204311, 'name': 'Nibiru, the Primal Being', 'type': 'MAIN'}
-    ,{'id': 27204311, 'name': 'Nibiru, the Primal Being', 'type': 'MAIN'}
-    ,{'id': 13893596, 'name': 'Exodius the Ultimate Forbidden Lord', 'type': 'MAIN'}
-    ,{'id': 13893596, 'name': 'Exodius the Ultimate Forbidden Lord', 'type': 'MAIN'}
-    ,{'id': 10000080, 'name': 'The Winged Dragon of Ra - Sphere Mode', 'type': 'MAIN'}
-    ,{'id': 10000080, 'name': 'The Winged Dragon of Ra - Sphere Mode', 'type': 'MAIN'}
-    ,{'id': 68535320, 'name': 'Fire Hand', 'type': 'MAIN'}
-    ,{'id': 68535320, 'name': 'Fire Hand', 'type': 'MAIN'}
-    ,{'id': 68535320, 'name': 'Fire Hand', 'type': 'MAIN'}
-    ,{'id': 95929069, 'name': 'Ice Hand', 'type': 'MAIN'}
-    ,{'id': 95929069, 'name': 'Ice Hand', 'type': 'MAIN'}
-    ,{'id': 95929069, 'name': 'Ice Hand', 'type': 'MAIN'}
-    ,{'id': 16223761, 'name': 'Thunder Hand', 'type': 'MAIN'}
-    ,{'id': 16223761, 'name': 'Thunder Hand', 'type': 'MAIN'}
-    ,{'id': 16223761, 'name': 'Thunder Hand', 'type': 'MAIN'}
-    ,{'id': 80885284, 'name': 'Ghostrick Jiangshi', 'type': 'MAIN'}
-    ,{'id': 80885284, 'name': 'Ghostrick Jiangshi', 'type': 'MAIN'}
-    ,{'id': 80885284, 'name': 'Ghostrick Jiangshi', 'type': 'MAIN'}
-    ,{'id': 32623004, 'name': 'Nopenguin', 'type': 'MAIN'}
-    ,{'id': 32623004, 'name': 'Nopenguin', 'type': 'MAIN'}
-    ,{'id': 54490275, 'name': 'Ghostrick Yuki-onna', 'type': 'MAIN'}
-    ,{'id': 54490275, 'name': 'Ghostrick Yuki-onna', 'type': 'MAIN'}
-    ,{'id': 93920745, 'name': 'Penguin Soldier', 'type': 'MAIN'}
-    ,{'id': 93920745, 'name': 'Penguin Soldier', 'type': 'MAIN'}
-    ,{'id': 93920745, 'name': 'Penguin Soldier', 'type': 'MAIN'}
-    ,{'id': 61318483, 'name': 'Ghostrick Jackfrost', 'type': 'MAIN'}
-    ,{'id': 61318483, 'name': 'Ghostrick Jackfrost', 'type': 'MAIN'}
-    ,{'id': 54512827, 'name': 'Ghostrick Lantern', 'type': 'MAIN'}
-    ,{'id': 54512827, 'name': 'Ghostrick Lantern', 'type': 'MAIN'}
-    ,{'id': 54512827, 'name': 'Ghostrick Lantern', 'type': 'MAIN'}
-    ,{'id': 81907872, 'name': 'Ghostrick Specter', 'type': 'MAIN'}
-    ,{'id': 81907872, 'name': 'Ghostrick Specter', 'type': 'MAIN'}
-    ,{'id': 81907872, 'name': 'Ghostrick Specter', 'type': 'MAIN'}
-    ,{'id': 81191584, 'name': 'Recurring Nightmare', 'type': 'MAIN'}
-    ,{'id': 81191584, 'name': 'Recurring Nightmare', 'type': 'MAIN'}
-    ,{'id': 81191584, 'name': 'Recurring Nightmare', 'type': 'MAIN'}
-    ,{'id': 15693423, 'name': 'Evenly Matched', 'type': 'MAIN'}
-    ,{'id': 15693423, 'name': 'Evenly Matched', 'type': 'MAIN'}
-    ,{'id': 15693423, 'name': 'Evenly Matched', 'type': 'MAIN'}
-    ,{'id': 53334641, 'name': 'Ghostrick Angel of Mischief', 'type': 'EXTRA'}
-    ,{'id': 75367227, 'name': 'Ghostrick Alucard', 'type': 'EXTRA'}
-    ,{'id': 32224143, 'name': 'Ghostrick Socuteboss', 'type': 'EXTRA'}
-    ,{'id': 73642296, 'name': 'Ghost Belle & Haunted Mansion', 'type': 'MAIN'}
-    ,{'id': 52038441, 'name': 'Ghost Mourner & Moonlit Chill', 'type': 'MAIN'}
-    ,{'id': 59438930, 'name': 'Ghost Ogre & Snow Rabbit', 'type': 'MAIN'}
-    ,{'id': 59438931, 'name': 'Ghost Ogre & Snow Rabbit', 'type': 'MAIN'}
-    ,{'id': 62015409, 'name': 'Ghost Reaper & Winter Cherries', 'type': 'MAIN'}
-    ,{'id': 62015409, 'name': 'Ghost Reaper & Winter Cherries', 'type': 'MAIN'}
-    ,{'id': 60643553, 'name': 'Ghost Sister & Spooky Dogwood', 'type': 'MAIN'}
-    ,{'id': 60643553, 'name': 'Ghost Sister & Spooky Dogwood', 'type': 'MAIN'}
-    ,{'id': 54490275, 'name': 'Ghostrick Yuki-onna', 'type': 'MAIN'}
-    ,{'id': 61318483, 'name': 'Ghostrick Jackfrost', 'type': 'MAIN'}
+    expected = [
+        {"id": 27204311, "name": "Nibiru, the Primal Being", "type": "MAIN"},
+        {"id": 27204311, "name": "Nibiru, the Primal Being", "type": "MAIN"},
+        {"id": 27204311, "name": "Nibiru, the Primal Being", "type": "MAIN"},
+        {"id": 13893596, "name": "Exodius the Ultimate Forbidden Lord", "type": "MAIN"},
+        {"id": 13893596, "name": "Exodius the Ultimate Forbidden Lord", "type": "MAIN"},
+        {
+            "id": 10000080,
+            "name": "The Winged Dragon of Ra - Sphere Mode",
+            "type": "MAIN",
+        },
+        {
+            "id": 10000080,
+            "name": "The Winged Dragon of Ra - Sphere Mode",
+            "type": "MAIN",
+        },
+        {"id": 68535320, "name": "Fire Hand", "type": "MAIN"},
+        {"id": 68535320, "name": "Fire Hand", "type": "MAIN"},
+        {"id": 68535320, "name": "Fire Hand", "type": "MAIN"},
+        {"id": 95929069, "name": "Ice Hand", "type": "MAIN"},
+        {"id": 95929069, "name": "Ice Hand", "type": "MAIN"},
+        {"id": 95929069, "name": "Ice Hand", "type": "MAIN"},
+        {"id": 16223761, "name": "Thunder Hand", "type": "MAIN"},
+        {"id": 16223761, "name": "Thunder Hand", "type": "MAIN"},
+        {"id": 16223761, "name": "Thunder Hand", "type": "MAIN"},
+        {"id": 80885284, "name": "Ghostrick Jiangshi", "type": "MAIN"},
+        {"id": 80885284, "name": "Ghostrick Jiangshi", "type": "MAIN"},
+        {"id": 80885284, "name": "Ghostrick Jiangshi", "type": "MAIN"},
+        {"id": 32623004, "name": "Nopenguin", "type": "MAIN"},
+        {"id": 32623004, "name": "Nopenguin", "type": "MAIN"},
+        {"id": 54490275, "name": "Ghostrick Yuki-onna", "type": "MAIN"},
+        {"id": 54490275, "name": "Ghostrick Yuki-onna", "type": "MAIN"},
+        {"id": 93920745, "name": "Penguin Soldier", "type": "MAIN"},
+        {"id": 93920745, "name": "Penguin Soldier", "type": "MAIN"},
+        {"id": 93920745, "name": "Penguin Soldier", "type": "MAIN"},
+        {"id": 61318483, "name": "Ghostrick Jackfrost", "type": "MAIN"},
+        {"id": 61318483, "name": "Ghostrick Jackfrost", "type": "MAIN"},
+        {"id": 54512827, "name": "Ghostrick Lantern", "type": "MAIN"},
+        {"id": 54512827, "name": "Ghostrick Lantern", "type": "MAIN"},
+        {"id": 54512827, "name": "Ghostrick Lantern", "type": "MAIN"},
+        {"id": 81907872, "name": "Ghostrick Specter", "type": "MAIN"},
+        {"id": 81907872, "name": "Ghostrick Specter", "type": "MAIN"},
+        {"id": 81907872, "name": "Ghostrick Specter", "type": "MAIN"},
+        {"id": 81191584, "name": "Recurring Nightmare", "type": "MAIN"},
+        {"id": 81191584, "name": "Recurring Nightmare", "type": "MAIN"},
+        {"id": 81191584, "name": "Recurring Nightmare", "type": "MAIN"},
+        {"id": 15693423, "name": "Evenly Matched", "type": "MAIN"},
+        {"id": 15693423, "name": "Evenly Matched", "type": "MAIN"},
+        {"id": 15693423, "name": "Evenly Matched", "type": "MAIN"},
+        {"id": 53334641, "name": "Ghostrick Angel of Mischief", "type": "EXTRA"},
+        {"id": 75367227, "name": "Ghostrick Alucard", "type": "EXTRA"},
+        {"id": 32224143, "name": "Ghostrick Socuteboss", "type": "EXTRA"},
+        {"id": 73642296, "name": "Ghost Belle & Haunted Mansion", "type": "MAIN"},
+        {"id": 52038441, "name": "Ghost Mourner & Moonlit Chill", "type": "MAIN"},
+        {"id": 59438930, "name": "Ghost Ogre & Snow Rabbit", "type": "MAIN"},
+        {"id": 59438931, "name": "Ghost Ogre & Snow Rabbit", "type": "MAIN"},
+        {"id": 62015409, "name": "Ghost Reaper & Winter Cherries", "type": "MAIN"},
+        {"id": 62015409, "name": "Ghost Reaper & Winter Cherries", "type": "MAIN"},
+        {"id": 60643553, "name": "Ghost Sister & Spooky Dogwood", "type": "MAIN"},
+        {"id": 60643553, "name": "Ghost Sister & Spooky Dogwood", "type": "MAIN"},
+        {"id": 54490275, "name": "Ghostrick Yuki-onna", "type": "MAIN"},
+        {"id": 61318483, "name": "Ghostrick Jackfrost", "type": "MAIN"},
     ]
     assert translate.decode_omega(omega_code) == expected
