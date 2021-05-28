@@ -76,6 +76,8 @@ def _decode_omega(omega_code):
     mapping = {x["id"]: dict(x) for x in from_ids(set(cards))}
 
     deck = [mapping[card] for card in cards]
+    for card in deck:
+        print(card)
     return deck
 
 
