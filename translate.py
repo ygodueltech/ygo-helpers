@@ -79,7 +79,7 @@ def decode_omega(omega_code):
     return deck
 
 
-def translate(infile):
+def peek_into_ydk(infile):
     """print out cards in a ydk"""
     cur = get_db().cursor()
     cur.execute("select name,id from texts")
@@ -90,11 +90,14 @@ def translate(infile):
         lines = f.readlines()
         ydk_data = [line.strip() for line in lines if line.strip()]
 
-    for line in ydk_data:
-        if re.match("^[#!]", line):
-            print(line)
-            continue
-        print(f"{line} - {mapping[int(line)]}")
+    deck = [
+        {"id": line, "name": mapping[int(line)]}
+        for line in ydk_data
+        if not re.match("^[#!]", line)
+    ]
+    for card in deck:
+        print(f"{card['id']} - {card['name']}")
+    return deck
 
 
 @click.group()
@@ -105,7 +108,7 @@ def cli():
 @cli.command()
 @click.argument("infile")
 def maincli(infile):
-    translate(infile)
+    peek_into_ydk(infile)
 
 
 @cli.command()
