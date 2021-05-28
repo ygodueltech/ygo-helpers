@@ -1,11 +1,71 @@
+'''
+https://github.com/vonas/omega-api-decks/blob/master/src/Format/decoders/OmegaFormatDecoder.php
+'''
 import click
+import base64
+import zlib
 import re
 import sqlite3
+import struct
 
 import os
 DIR = os.path.dirname(os.path.abspath(__file__))
 
-def translate(infile, dbfile=f"{DIR}/cards.cdb"):
+dbfile = os.getenv("YGO_CARDS_CDB") or f"{DIR}/cards.cdb"
+
+def get_db():
+    con = sqlite3.connect(dbfile)
+    con.row_factory = sqlite3.Row
+    return con
+
+def gzinflate(s):
+    '''
+    https://github.com/Fitblip/Snippits/blob/master/python/eval.gzinflate.base64.py
+    '''
+    left = s.count('(')
+    right = s.count(')')
+
+    if left != right:
+        raise ValueError("Truncated input? should have same '( 'and ')' count")
+    elif left > 0:
+        return zlib.decompressobj().decompress(b'x\x9c' + base64.b64decode(s.split('(')[-1].split("'")[1]))
+    elif left == 0:
+        return zlib.decompressobj().decompress(b'x\x9c' + base64.b64decode(s))
+    raise ValueError("no idea what to do")
+
+def from_ids(cids):
+    con = get_db()
+    cur = con.cursor()
+    cids = ','.join(map(str,cids))
+    cur.execute(f"""select datas.id, name
+            ,CASE
+                WHEN type & 0x40 THEN 'EXTRA' -- Fusion
+                WHEN type & 0x2000 THEN 'EXTRA' -- Synchro
+                WHEN type & 0x800000 THEN 'EXTRA' -- XYZ
+                WHEN type & 0x4000000 THEN 'EXTRA' -- Link
+                ELSE 'MAIN'
+            END AS type
+            from texts
+            join datas
+            on datas.id = texts.id
+            where datas.id in ({cids})""")
+    res = list(cur.fetchall())
+    return res
+
+def decode_omega(omega_code):
+    raw = gzinflate(omega_code.strip())
+
+    main_and_extra_count = raw[0]
+    side_count = raw[1]
+    tail = raw[2:]
+
+    cards = [x[0] for x in struct.iter_unpack('i', tail)]
+    mapping = {x['id']:dict(x) for x in from_ids(set(cards))}
+
+    deck = [mapping[card] for card in cards]
+    return deck
+
+def translate(infile):
     con = sqlite3.connect(dbfile)
     cur = con.cursor()
     cur.execute("select name,id from texts")
@@ -17,7 +77,7 @@ def translate(infile, dbfile=f"{DIR}/cards.cdb"):
         ydk_data = [line.strip() for line in lines if line.strip()]
 
     for line in ydk_data:
-        if re.match(f'^[#!]', line):
+        if re.match('^[#!]', line):
             print(line)
             continue
         print(f"{line} - {mapping[int(line)]}")
@@ -30,6 +90,11 @@ def cli():
 @click.argument('infile')
 def maincli(infile):
     translate(infile)
+
+@cli.command()
+@click.argument('omega_code')
+def deomega(omega_code):
+    decode_omega(omega_code)
 
 if __name__ == "__main__":
     cli()
