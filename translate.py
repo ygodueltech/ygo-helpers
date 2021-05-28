@@ -64,7 +64,7 @@ def from_ids(cids):
     return res
 
 
-def decode_omega(omega_code):
+def _decode_omega(omega_code):
     """decode omega and print out cards in it"""
     raw = gzinflate(omega_code.strip())
 
@@ -79,7 +79,7 @@ def decode_omega(omega_code):
     return deck
 
 
-def peek_into_ydk(infile):
+def _peek_into_ydk(infile):
     """print out cards in a ydk"""
     cur = get_db().cursor()
     cur.execute("select name,id from texts")
@@ -107,14 +107,14 @@ def cli():
 
 @cli.command()
 @click.argument("infile")
-def maincli(infile):
-    peek_into_ydk(infile)
+def peek_into_ydk(infile):
+    _peek_into_ydk(infile)
 
 
 @cli.command()
 @click.argument("omega_code")
-def deomega(omega_code):
-    decode_omega(omega_code)
+def decode_omega(omega_code):
+    _decode_omega(omega_code)
 
 
 if __name__ == "__main__":

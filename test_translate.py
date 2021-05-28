@@ -7,7 +7,7 @@ DIR = os.path.dirname(os.path.abspath(__file__))
 
 def test_peek_into_ydk():
     infile = f"{DIR}/AI_BlueEyes.ydk"
-    actual = translate.peek_into_ydk(infile)
+    actual = translate._peek_into_ydk(infile)
     expected = [
         {"id": "89631139", "name": "Blue-Eyes White Dragon"},
         {"id": "89631139", "name": "Blue-Eyes White Dragon"},
@@ -133,4 +133,4 @@ def test_decode_omega():
         {"id": 54490275, "name": "Ghostrick Yuki-onna", "type": "MAIN"},
         {"id": 61318483, "name": "Ghostrick Jackfrost", "type": "MAIN"},
     ]
-    assert translate.decode_omega(omega_code) == expected
+    assert translate._decode_omega(omega_code) == expected
