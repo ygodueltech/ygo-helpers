@@ -59,7 +59,7 @@ def _decode_omega(omega_code):
     """
     raw = gzinflate(omega_code.strip())
 
-    # main_and_extra_count = raw[0]
+    main_and_extra_count = raw[0]
     # side_count = raw[1]
     tail = raw[2:]
 
@@ -67,6 +67,9 @@ def _decode_omega(omega_code):
     mapping = {x["id"]: dict(x) for x in from_ids(set(cards))}
 
     deck = [mapping[card] for card in cards]
+    for card in deck[main_and_extra_count:]:
+        card["type"] = "SIDE"
+
     for card in deck:
         print(card)
     return deck
