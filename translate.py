@@ -75,6 +75,25 @@ def _decode_omega(omega_code):
     return deck
 
 
+def normalize_name(name):
+    normalized = re.sub("[^a-zA-Z0-9]", "", name)
+    if not normalized:
+        raise ValueError(f"{name} normalized into empty string!")
+
+    if not normalized[0].isalpha():  # prepend "A" to make valid id...
+        normalized = "A" + normalize_name
+    return normalized
+
+
+def to_windbot_deck_constants(deck):
+    uniq_id_names = sorted(
+        set([(normalize_name(x["name"]), x["id"]) for x in deck if x["type"] != "SIDE"])
+    )
+    formatted = [f"public const int {name} = {cid};" for name, cid in uniq_id_names]
+    print("\n".join(formatted))
+    return formatted
+
+
 def _decode_ydke(ydke):
     """
     ydke string to decklist
