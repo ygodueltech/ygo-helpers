@@ -57,24 +57,7 @@ def get_db():
 
 
 def gzinflate(compressed):
-    """
-    php gzinflate in python
-    raise ValueError if bad input
-    https://github.com/Fitblip/Snippits/blob/master/python/eval.gzinflate.base64.py
-    """
-    left = compressed.count("(")
-    right = compressed.count(")")
-
-    if left != right:
-        raise ValueError("Truncated input? should have same '( 'and ')' count")
-
-    if left > 0:
-        return zlib.decompressobj().decompress(
-            b"x\x9c" + base64.b64decode(compressed.split("(")[-1].split("'")[1])
-        )
-    if left == 0:
-        return zlib.decompressobj().decompress(b"x\x9c" + base64.b64decode(compressed))
-    raise ValueError("no idea what to do")
+    return zlib.decompress(base64.b64decode(compressed), -8)
 
 
 def from_ids(cids):
