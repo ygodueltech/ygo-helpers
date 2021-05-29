@@ -1,5 +1,5 @@
 """
-https://github.com/vonas/omega-api-decks/blob/master/src/Format/decoders/OmegaFormatDecoder.php
+Some code for peeking inside yu-gi-oh deck formats
 """
 import base64
 import os
@@ -19,35 +19,6 @@ YDKE_SEPARATOR = "!"
 YDKE_SUFFIX = "!"
 
 RE_YDKE = f"{YDKE_PREFIX}(?P<deck>.*){YDKE_SUFFIX}"
-
-
-def _decode_ydke(ydke):
-
-    match = re.match(RE_YDKE, ydke)
-    if not match:
-        raise ValueError(f"must match {RE_YDKE}, got {ydke}")
-
-    raw = match.groupdict()["deck"]
-
-    result = []
-    for i, subdeck in enumerate(raw.split(YDKE_SEPARATOR)):
-
-        decoded = base64.b64decode(subdeck)
-        card_ids = [x[0] for x in struct.iter_unpack("i", decoded)]
-
-        mapping = {x["id"]: dict(x) for x in from_ids(set(card_ids))}
-        subcards = [mapping[x] for x in card_ids]
-
-        deck_type = {0: "MAIN", 1: "EXTRA", 2: "SIDE"}.get(i)
-        for card in subcards:
-            card["type"] = deck_type
-        result.append(subcards)
-    result = sum(result, [])
-
-    for card in result:
-        print(card)
-
-    return result
 
 
 def get_db():
@@ -83,7 +54,9 @@ def from_ids(cids):
 
 
 def _decode_omega(omega_code):
-    """decode omega and print out cards in it"""
+    """decode omega and print out cards in it
+    based on https://github.com/vonas/omega-api-decks/blob/master/src/Format/decoders/OmegaFormatDecoder.php
+    """
     raw = gzinflate(omega_code.strip())
 
     # main_and_extra_count = raw[0]
@@ -97,6 +70,39 @@ def _decode_omega(omega_code):
     for card in deck:
         print(card)
     return deck
+
+
+def _decode_ydke(ydke):
+    """
+    ydke string to decklist
+    based on https://github.com/vonas/omega-api-decks/blob/master/src/Format/decoders/YdkeFormatDecoder.php
+    """
+
+    match = re.match(RE_YDKE, ydke)
+    if not match:
+        raise ValueError(f"must match {RE_YDKE}, got {ydke}")
+
+    raw = match.groupdict()["deck"]
+
+    result = []
+    for i, subdeck in enumerate(raw.split(YDKE_SEPARATOR)):
+
+        decoded = base64.b64decode(subdeck)
+        card_ids = [x[0] for x in struct.iter_unpack("i", decoded)]
+
+        mapping = {x["id"]: dict(x) for x in from_ids(set(card_ids))}
+        subcards = [mapping[x] for x in card_ids]
+
+        deck_type = {0: "MAIN", 1: "EXTRA", 2: "SIDE"}.get(i)
+        for card in subcards:
+            card["type"] = deck_type
+        result.append(subcards)
+    result = sum(result, [])
+
+    for card in result:
+        print(card)
+
+    return result
 
 
 def _peek_into_ydk(infile):
