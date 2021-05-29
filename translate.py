@@ -20,6 +20,12 @@ YDKE_SUFFIX = "!"
 
 RE_YDKE = f"{YDKE_PREFIX}(?P<deck>.*){YDKE_SUFFIX}"
 
+SIDE = "SIDE"
+EXTRA = "EXTRA"
+MAIN = "MAIN"
+
+STANDARD_DECKTYPES = (MAIN, EXTRA, SIDE)
+
 
 def get_db():
     con = sqlite3.connect(dbfile)
@@ -66,9 +72,11 @@ def _decode_omega(omega_code):
     cards = [x[0] for x in struct.iter_unpack("i", tail)]
     mapping = {x["id"]: dict(x) for x in from_ids(set(cards))}
 
-    deck = [mapping[card] for card in cards]
+    deck = [dict(mapping[card]) for card in cards]
     for card in deck[main_and_extra_count:]:
         card["type"] = "SIDE"
+
+    deck[-1]["type"] = "THUMBNAIL"
 
     for card in deck:
         print(card)
