@@ -1,9 +1,12 @@
 """
-https://www.semantic-mediawiki.org/wiki/Help:Inline_queries#Parser_function_.23ask
-https://yugipedia.com/wiki/Category:Properties_(SMW)
+code for crawling yugipedia data and parsing it out into nicer db
 
+example of downloading json from semantic search
 http 'https://yugipedia.com/wiki/Special:Ask/format%3Djson/limit%3D500/offset%3D6500/link%3Dall/headers%3Dshow/searchlabel%3DJSON/class%3D-20sortable-20wikitable-20smwtable-20card-2Dlist/sort%3D-23/order%3Dasc/-5B-5BCategory:Yu-2DGi-2DOh!-20Duel-20Links-20cards-5D-5D-20-5B-5BCard-20type::!Monster-20card-5D-5D/-3FJapanese-20name/-3FCard-20type%3D-5B-5BCard-20type-5D-5D/-3FProperty%3D-5B-5BProperty-5D-5D/mainlabel%3D/prettyprint%3Dtrue/unescape%3Dtrue' > example_res.json
 
+
+available properties are:
+https://yugipedia.com/wiki/Category:Properties_(SMW)
 
 """
 import itertools
@@ -15,20 +18,9 @@ from random import randint
 
 import requests
 
-
-def normalize_name(name):
-    return name.lower().replace(" ", "_")
-
-
-# py2 compat
-try:
-    from urllib.parse import urlparse
-except ImportError:
-    from urlparse import urlparse
-
 RELEASE_TCG = "[[Medium::TCG]]"
 
-YUGIPEDIA_HOST = f"https://yugipedia.com"
+YUGIPEDIA_HOST = "https://yugipedia.com"
 YUGIPEDIA_PATH = "index.php?title=Special:Ask"
 
 ASK_URI = f"{YUGIPEDIA_HOST}/{YUGIPEDIA_PATH}"
@@ -83,7 +75,7 @@ MULTIFIELD = [
     "Misc",
 ]
 
-DISPLAYS1 = [
+ALL_DISPLAYS = [
     "Database ID",
     "Password",
     "English name",
@@ -100,9 +92,6 @@ DISPLAYS1 = [
     "Archseries",
     "ATK",
     "DEF",
-]
-DISPLAYS2 = [
-    "Database ID",
     "Anti-support",
     "Actions",
     "Materials",
@@ -124,9 +113,6 @@ DISPLAYS2 = [
     "Link Rating",
 ]
 
-ALL_DISPLAYS = list(set(DISPLAYS1 + DISPLAYS2))
-
-# https://yugipedia.com/wiki/Special:Ask/format%3Djson/limit%3D500/offset%3D6500/link%3Dall/headers%3Dshow/searchlabel%3DJSON/class%3D-20sortable-20wikitable-20smwtable-20card-2Dlist/sort%3D-23/order%3Dasc/-5B-5BCategory:Yu-2DGi-2DOh!-20Duel-20Links-20cards-5D-5D-20-5B-5BCard-20type::!Monster-20card-5D-5D/-3FJapanese-20name/-3FCard-20type%3D-5B-5BCard-20type-5D-5D/-3FProperty%3D-5B-5BProperty-5D-5D/mainlabel%3D/prettyprint%3Dtrue/unescape%3Dtrue
 
 # "https://yugipedia.com/wiki/Special:Ask/format%3Djson/limit%3D500/link%3Dall/headers%3Dshow/searchlabel%3DJSON/class%3D-20sortable-20wikitable-20smwtable-20card-2Dlist/sort%3D-23/order%3Dasc/"
 
@@ -158,10 +144,17 @@ replaces = {
 # , ' ':SPACE
 
 
-def encode_sm_uri(uri):  # TODO is a shit. '|'.join(
+def normalize_name(name):
+    return name.lower().replace(" ", "_")
+
+
+def encode_sm_uri(uri):  # TODO is a shit
     """
 
-    re.sub maybe better
+    there is something confusing about parts of the url
+    wanting encodings with '-' and others want normal % encoding so this this stupid hack iono
+
+    re.sub maybe better or just a normal quote
     pattern = re.compile(r'\b(' + '|'.join(d.keys()) + r')\b')
     result = pattern.sub(lambda x: d[x.group()], s)
     https://stackoverflow.com/questions/2400504/easiest-way-to-replace-a-string-using-a-dictionary-of-replacements
@@ -173,83 +166,37 @@ def encode_sm_uri(uri):  # TODO is a shit. '|'.join(
     return encoded
 
 
-def ask_yugipedia(search_query, raw_printouts, limit=10, do_sleep=2):
+def ask_yugipedia(search_query, raw_printouts, limit=10, do_sleep=2, sort="", order=""):
+    """
+        has sleep build in to be nice
+
+
+    ask_yugipedia("[[Medium::TCG]]", ["Database ID", "Password", "English name"])
+    """
 
     add_q = lambda x: f"{Q_MARK}{x}"
     # printouts = "/".join(map(add_q, raw_printouts))
     printouts = "%2F".join(map(add_q, raw_printouts))
 
-    sort = ""  # "Database Id"
-    order = ""  # "desc"
     limit = f"limit={limit}"
 
-    query = f"{search_query}%2F{printouts}%2F{limit}"
+    query = f"{search_query}%2F{printouts}%2F{limit}{sort}{order}"  # TODO sort order
     query = encode_sm_uri(query)
 
     uri = f"{uri_prefix}&x={query}"
     if do_sleep:
         time.sleep(do_sleep)
     res = requests.get(uri)
+
     # __import__("ipdb").set_trace()
     # print(res.url)
     data = res.json() if res.content else {}
     return data
 
 
-def display(displays):
-
-    # add_q = lambda x: f"?{x}"
-    add_q = lambda x: f"{Q_MARK}{x}"
-    # printouts = ''.join(map(add_q, DISPLAYS))
-    search_query = "[[Medium::TCG]] [[MonsterSpellTrap::+]]"
-
-    limit = 10
-    sort = ""  # "Database Id"
-    order = ""  # "desc"
-
-    # query = f"{search_query}{printouts}{limit}{sort}{order}"
-    # qparams = {"query":query, "format":"jsonfm"}
-    qparams = {}
-
-    # limit = "limit=10"
-    printouts = "/".join(map(add_q, displays))
-    query = f"{search_query}{printouts}/{limit}"
-    query = encode_sm_uri(query)
-    uri = f"{uri_prefix}/{query}"
-    res = requests.get(uri)
-    data = res.json()
-
-    # uri = "https://yugipedia.com/wiki/Special:Ask/format%3Djson/limit%3D10/link%3Dall/headers%3Dshow/mainlabel%3D-2D/searchlabel%3DJSON/class%3D-20sortable-20wikitable-20smwtable-20card-2Dlist/sort%3D-23/order%3Dasc/offset%3D0/-5B-5BMedium::TCG-5D-5D-20-5B-5BMonsterSpellTrap::%2B-5D-5D/-3FDatabase-20ID/-3FPassword/-3FEnglish-20name/-3FCard-20type/-3FMonsterSpellTrap/prettyprint%3Dtrue/unescape%3Dtrue"
-    # for x in totest:
-    #     printouts = "/".join(map(add_q, DISPLAYS + [x]))
-    #     # printouts = "/".join(map(add_q, [x]))
-    #     # printouts = "/".join(map(add_q, totest))
-    #     query = f"{search_query}{printouts}/{limit}"
-    #     query = encode_sm_uri(query)
-    #     uri = f"{uri_prefix}/{query}"
-    #     res = requests.get(uri)
-    #     try:
-
-    #         data = res.json()
-    #         print(uri)
-    #         # print(res)
-    #         print(res.url)
-    #         print("workeddddddddddddddddddddddddd:", x)
-    #         __import__("ipdb").set_trace()
-    #     except Exception as e:
-    #         print("fail:", x)
-    #         # print(x)
-    #     time.sleep(1)
-
-    # print(res.content)
-    # __import__("ipdb").set_trace()
-
-
-# print(encode_sm_uri(decoded_uri))
-
-
 def craw_all():
     """
+    go by knomi db id thorough pages of results and get 1 big list of lists at end
 
     > is >= by default for semantic wiki!
     """
@@ -501,10 +448,12 @@ def fusions():
     return edges
 
 
-# res = craw_all()
-# with open("tcg_cards.json", "w") as f:
-#     json.dump(res, f)
-#     print(len(res))
+def run_crawl(outfile="tcg_cards.json"):
+    res = craw_all()
+    with open(outfile, "w") as f:
+        json.dump(res, f)
+        print(len(res))
+
 
 # parse_examples()
 # data = ask_yugipedia(RELEASE_TCG, ALL_DISPLAYS)
