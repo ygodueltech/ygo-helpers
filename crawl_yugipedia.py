@@ -16,6 +16,7 @@ import time
 from collections import Counter
 from random import randint
 
+import click
 import requests
 
 RELEASE_TCG = "[[Medium::TCG]]"
@@ -448,14 +449,31 @@ def fusions():
     return edges
 
 
-def run_crawl(outfile="tcg_cards.json"):
+def save_crawl(outfile="tcg_cards.json"):
     res = craw_all()
     with open(outfile, "w") as f:
         json.dump(res, f)
         print(len(res))
 
 
-# parse_examples()
-# data = ask_yugipedia(RELEASE_TCG, ALL_DISPLAYS)
-# parse_crawl()
-# analysis()
+@click.group()
+def cli():
+    pass
+
+
+@cli.command()
+def misc():
+    pass
+    # parse_examples()
+    # data = ask_yugipedia(RELEASE_TCG, ALL_DISPLAYS)
+    # parse_crawl()
+    # analysis()
+
+
+@cli.command()
+def run_save_crawl():
+    save_crawl()
+
+
+if __name__ == "__main__":
+    cli()
