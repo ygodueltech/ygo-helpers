@@ -2,11 +2,13 @@
 Some code for peeking inside yu-gi-oh deck formats
 """
 import base64
+import json
 import os
 import re
 import sqlite3
 import struct
 import zlib
+from collections import defaultdict
 
 import click
 
@@ -25,6 +27,35 @@ EXTRA = "EXTRA"
 MAIN = "MAIN"
 
 STANDARD_DECKTYPES = (MAIN, EXTRA, SIDE)
+
+
+def to_ydk(deck):
+    """
+    [{'id':0, 'name':'foo', 'type':'MAIN}] -> ydk
+    includes comments at top with the mapping of "$cardid = $name"
+
+    """
+
+    uniq_id_names = sorted(
+        {(x["id"], x["name"]) for x in deck if x["type"] in STANDARD_DECKTYPES}
+    )
+    comments = "\n".join([f"# {cid} = {name};" for cid, name in uniq_id_names])
+
+    ydk_decklist = [comments]
+    current_decktype = None
+    for card in deck:
+
+        card_type = card["type"]
+        if card_type not in STANDARD_DECKTYPES:
+            continue  # ignore nonstandard types like THUMBNAIL
+
+        if card_type != current_decktype:
+            ydk_decklist.append(f"!{card_type.lower()}")
+            current_decktype = card_type
+
+        ydk_decklist.append(str(card["id"]))
+    print("\n".join(ydk_decklist))
+    return ydk_decklist
 
 
 def get_db():
@@ -89,7 +120,7 @@ def normalize_name(name):
         raise ValueError(f"{name} normalized into empty string!")
 
     if not normalized[0].isalpha():  # prepend "A" to make valid id...
-        normalized = "A" + normalize_name
+        normalized = f"A{normalized}"
     return normalized
 
 
@@ -135,6 +166,83 @@ def _decode_ydke(ydke):
     return result
 
 
+def get_name_to_id():
+    cur = get_db().cursor()
+    cur.execute(
+        f"""select datas.id, name
+            ,CASE
+                WHEN type & 0x40 THEN 'EXTRA' -- Fusion
+                WHEN type & 0x2000 THEN 'EXTRA' -- Synchro
+                WHEN type & 0x800000 THEN 'EXTRA' -- XYZ
+                WHEN type & 0x4000000 THEN 'EXTRA' -- Link
+                ELSE 'MAIN'
+            END AS type
+            from texts
+            join datas
+            on datas.id = texts.id
+    """
+    )
+    mapping = {name.lower(): (dbid, typ) for dbid, name, typ in cur.fetchall()}
+    return mapping
+
+
+def from_json():
+    """
+    this was for messing with local files of data scraped for decklists on yugipedia
+    """
+    infile = "./sd_decks2_2021_06_02.json"
+    # infile = "./chars_2021_06_02.json"
+    decks = json.load(open(infile))
+
+    mapping = get_name_to_id()
+
+    parsed_decks = []
+    for deck in decks:
+
+        parsed_deck = []
+
+        deckname = deck["deckname"]
+        if "(incomplete)" in deckname:
+            continue
+
+        cards = deck["cards"]
+        parsed_cards = defaultdict(list)
+
+        comment_cards = set()
+        for card in cards:
+            cardname = card["cardname"].lower().strip()
+            if cardname not in mapping:
+                print(deckname, "|", cardname)
+                # __import__("ipdb").set_trace()
+                raise Exception("wtf")
+            num = card["num"]
+
+            dbid, typ = mapping[cardname]
+
+            card["id"] = dbid
+            card["type"] = typ
+            card["name"] = card["cardname"]
+
+            parsed_cards[typ].extend([str(dbid) for _ in range(num)])
+            comment_cards.add(f'# {dbid} = {card["cardname"]} ({num})')
+
+        ydkname = re.sub("[^a-z0-9]", "_", deckname.lower())
+
+        maindeck = "\n".join(parsed_cards[MAIN])
+        extradeck = "\n".join(parsed_cards[EXTRA])
+        comments = "\n".join(sorted(comment_cards))
+        # comments = "\n".join(sorted(to_windbot_deck_constants(cards)))
+
+        final_ydk = "\n".join(
+            [f"## {deckname}", comments, f"#main", maindeck, "#extra", extradeck]
+        )
+        # print(final_ydk)
+        # __import__("ipdb").set_trace()
+        with open(f"dldecks/DLAI__{ydkname}.ydk", "w") as f:
+            # with open(f"chardecks/DLAI__{ydkname}.ydk", "w") as f:
+            f.write(final_ydk)
+
+
 def _peek_into_ydk(infile):
     """print out cards in a ydk"""
     cur = get_db().cursor()
@@ -149,7 +257,7 @@ def _peek_into_ydk(infile):
     deck = [
         {"id": line, "name": mapping[int(line)]}
         for line in ydk_data
-        if not re.match("^[#!]", line)
+        if not re.match("^[#!'\ufeff]", line)
     ]
     for card in deck:
         print(f"{card['id']} - {card['name']}")
@@ -171,6 +279,11 @@ def peek_into_ydk(infile):
 @click.argument("omega_code")
 def decode_omega(omega_code):
     _decode_omega(omega_code)
+
+
+@cli.command()
+def testit():
+    from_json()
 
 
 if __name__ == "__main__":
