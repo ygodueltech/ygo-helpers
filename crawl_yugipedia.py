@@ -145,6 +145,13 @@ replaces = {
 # , ' ':SPACE
 
 
+def pairwise(iterable):
+    "s -> (s0,s1), (s1,s2), (s2, s3), ..."
+    a, b = itertools.tee(iterable)
+    next(b, None)
+    return zip(a, b)
+
+
 def normalize_name(name):
     return name.lower().replace(" ", "_")
 
@@ -246,6 +253,7 @@ def check(data, raw_printouts):
 
 
 def get_examples():
+    """searchs for example cards that have properties"""
 
     base_query = "[[Medium::TCG]] [[Database ID::+]]"
     base_printouts = [
@@ -268,6 +276,13 @@ def get_examples():
     return all_res
 
 
+def write_examples():
+    res = get_examples()
+    with open("example_has_prop.json", "w") as f:
+        json.dump(res, f)
+        print(len(res))
+
+
 def parse_examples():
     data = json.load(open("example_has_prop.json"))
 
@@ -288,7 +303,7 @@ def parse_examples():
         #    'displaytitle': ''}],
         #  'Stats': ['This card gains ATK']}]
 
-        try:
+        try:  # TODO brittle
             for fullurl, row in rows:
                 for k, v in dict(row).items():
                     if k in GET_FULLTEXT:
@@ -343,26 +358,6 @@ def parse_examples():
                 # __import__("ipdb").set_trace()
             pprint.pprint(v[:1])
             __import__("ipdb").set_trace()
-
-
-# display(DISPLAYS1)
-# get_examples(DISPLAYS1)
-# display(totest)
-# print(len(DISPLAYS), len(totest))
-
-
-def pairwise(iterable):
-    "s -> (s0,s1), (s1,s2), (s2, s3), ..."
-    a, b = itertools.tee(iterable)
-    next(b, None)
-    return zip(a, b)
-
-
-def write_examples():
-    res = get_examples()
-    with open("example_has_prop.json", "w") as f:
-        json.dump(res, f)
-        print(len(res))
 
 
 def parse_crawl():
@@ -429,10 +424,6 @@ def analysis():
 
     summons = Counter(sum([x["summoning"] for x in data], []))
     __import__("ipdb").set_trace()
-
-
-def atk_def():
-    data = get_data()
 
 
 def fusions():
