@@ -1,3 +1,6 @@
+# WARNGING
+i'm working on parsing some data and currently have dumped ~50MB of json into the `data` folder so the repo got fat
+
 # env vars
 
 `YGO_CARDS_CDB` location of `cards.cdb`

@@ -20,6 +20,12 @@ YDKE_SUFFIX = "!"
 
 RE_YDKE = f"{YDKE_PREFIX}(?P<deck>.*){YDKE_SUFFIX}"
 
+SIDE = "SIDE"
+EXTRA = "EXTRA"
+MAIN = "MAIN"
+
+STANDARD_DECKTYPES = (MAIN, EXTRA, SIDE)
+
 
 def get_db():
     con = sqlite3.connect(dbfile)
@@ -59,17 +65,41 @@ def _decode_omega(omega_code):
     """
     raw = gzinflate(omega_code.strip())
 
-    # main_and_extra_count = raw[0]
+    main_and_extra_count = raw[0]
     # side_count = raw[1]
     tail = raw[2:]
 
     cards = [x[0] for x in struct.iter_unpack("i", tail)]
     mapping = {x["id"]: dict(x) for x in from_ids(set(cards))}
 
-    deck = [mapping[card] for card in cards]
+    deck = [dict(mapping[card]) for card in cards]
+    for card in deck[main_and_extra_count:]:
+        card["type"] = "SIDE"
+
+    deck[-1]["type"] = "THUMBNAIL"
+
     for card in deck:
         print(card)
     return deck
+
+
+def normalize_name(name):
+    normalized = re.sub("[^a-zA-Z0-9]", "", name)
+    if not normalized:
+        raise ValueError(f"{name} normalized into empty string!")
+
+    if not normalized[0].isalpha():  # prepend "A" to make valid id...
+        normalized = "A" + normalize_name
+    return normalized
+
+
+def to_windbot_deck_constants(deck):
+    uniq_id_names = sorted(
+        set([(normalize_name(x["name"]), x["id"]) for x in deck if x["type"] != "SIDE"])
+    )
+    formatted = [f"public const int {name} = {cid};" for name, cid in uniq_id_names]
+    print("\n".join(formatted))
+    return formatted
 
 
 def _decode_ydke(ydke):
